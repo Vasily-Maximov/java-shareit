@@ -32,8 +32,8 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public Item update(@RequestHeader("X-Sharer-User-Id") Integer ownerId, @PathVariable Integer itemId, @RequestBody ItemDto itemDto)
-    {
+    public Item update(@RequestHeader("X-Sharer-User-Id") Integer ownerId, @PathVariable Integer itemId,
+                       @RequestBody ItemDto itemDto) {
         log.info("Передан запрос на изменение вещи по id:= {} пользователя по id:= {}, входные данные вещи : {}", itemId, ownerId,
                 itemDto);
         return itemService.update(ownerId, itemId, itemDto);
