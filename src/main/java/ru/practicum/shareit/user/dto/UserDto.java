@@ -14,6 +14,7 @@ import javax.validation.constraints.NotNull;
 @Builder(toBuilder = true)
 public class UserDto {
 
+    private Integer id;
     @NotBlank(groups = CreateGroup.class)
     private String name;
     @Email(groups = {CreateGroup.class, UpdateGroup.class})

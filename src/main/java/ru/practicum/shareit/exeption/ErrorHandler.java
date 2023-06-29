@@ -36,6 +36,14 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIncorrectParameter(final NumberFormatException e) {
+        String message = String.format("Некорректно передан параметр: %s", e.getMessage());
+        log.info(message);
+        return new ErrorResponse(message);
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable e) {
         log.info("Произошла непредвиденная ошибка.");

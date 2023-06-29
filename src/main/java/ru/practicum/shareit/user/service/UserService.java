@@ -10,19 +10,23 @@ import ru.practicum.shareit.exeption.ObjectValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 import java.util.List;
 
 @Service
 @Slf4j
 public class UserService extends AbstractService<User> {
 
+    private final UserRepository userRepository;
+
     @Autowired
-    public UserService(AbstractRepository<User> userRepository) {
-        super(userRepository);
+    public UserService(AbstractRepository<User> repository, UserRepository userRepository) {
+        super(repository);
+        this.userRepository = userRepository;
     }
 
     private void checkDuplicateEmail(String newEmail) {
-        if (super.getAll().stream().anyMatch(user -> user.getEmail().equals(newEmail))) {
+        if (userRepository.getEmails().contains(newEmail)) {
             throw new ObjectValidationException(String.format("Ошибка при создании/изменении пользователя неуникальный Email: %s",
                     newEmail));
         }
@@ -32,6 +36,7 @@ public class UserService extends AbstractService<User> {
         checkDuplicateEmail(userDto.getEmail());
         User user = UserMapper.toUser(userDto);
         super.add(user);
+        userRepository.getEmails().add(user.getEmail());
         log.info("Создан пользователь: {}", user);
         return user;
     }
@@ -50,6 +55,8 @@ public class UserService extends AbstractService<User> {
         } else {
             if (!oldUser.getEmail().equals(inputEmail)) {
                 checkDuplicateEmail(inputEmail);
+                userRepository.getEmails().remove(oldUser.getEmail());
+                userRepository.getEmails().add(inputEmail);
             }
         }
         User user = UserMapper.toUser(userDto);
@@ -75,7 +82,7 @@ public class UserService extends AbstractService<User> {
     }
 
     public void delete(Integer userId) {
-        getById(userId);
+        userRepository.getEmails().remove(getById(userId).getEmail());
         super.delete(userId);
         log.info("Выполнен запрос на удаление пользователя по id:= {}", userId);
     }

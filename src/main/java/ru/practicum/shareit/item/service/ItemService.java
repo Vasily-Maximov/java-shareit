@@ -9,7 +9,9 @@ import ru.practicum.shareit.exeption.ObjectNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.service.UserService;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,16 +22,20 @@ public class ItemService extends AbstractService<Item> {
 
     private final UserService userService;
 
+    private final ItemRepository itemRepository;
+
     @Autowired
-    public ItemService(AbstractRepository<Item> repository, UserService userService) {
+    public ItemService(AbstractRepository<Item> repository, UserService userService, ItemRepository itemRepository) {
         super(repository);
         this.userService = userService;
+        this.itemRepository = itemRepository;
     }
 
     public Item add(Integer ownerId, ItemDto itemDto) {
         userService.getById(ownerId);
         Item item = ItemMapper.toItem(itemDto, ownerId);
         super.add(item);
+        itemRepository.getUsersItems().put(ownerId, new ArrayList<>(List.of(item)));
         log.info("Создана вещь: {}", item);
         return item;
     }
@@ -58,6 +64,8 @@ public class ItemService extends AbstractService<Item> {
         Item item = ItemMapper.toItem(itemDto, ownerId);
         item.setId(oldItem.getId());
         super.update(item);
+        itemRepository.getUsersItems().get(ownerId).remove(oldItem);
+        itemRepository.getUsersItems().get(ownerId).add(item);
         log.info("Выполнен запрос на изменение вещи по id:= {} пользователя по id:= {}, входными данными : {}", itemId, ownerId,
                 itemDto);
         return item;
@@ -74,7 +82,7 @@ public class ItemService extends AbstractService<Item> {
     }
 
     public List<Item> getItemByOwner(Integer ownerId) {
-        return super.getAll().stream().filter(item -> item.getOwnerId().equals(ownerId)).collect(Collectors.toList());
+        return itemRepository.getUsersItems().get(ownerId);
     }
 
     public List<Item> search(String text) {
