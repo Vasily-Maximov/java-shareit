@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.user.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,9 +6,9 @@ import lombok.Data;
 import ru.practicum.shareit.abstarct.model.AbstractModel;
 import ru.practicum.shareit.check.CreateGroup;
 import ru.practicum.shareit.check.UpdateGroup;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 /**
  * TODO Sprint add-controllers.
@@ -16,17 +16,11 @@ import javax.validation.constraints.Size;
 @Data
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class Item extends AbstractModel {
+public class User extends AbstractModel {
 
     @NotBlank(groups = {CreateGroup.class, UpdateGroup.class})
     private String name;
-    @NotBlank(groups = {CreateGroup.class, UpdateGroup.class})
-    @Size(max = 300, groups = {CreateGroup.class, UpdateGroup.class})
-    private String description;
+    @Email(groups = {CreateGroup.class, UpdateGroup.class})
     @NotNull(groups = {CreateGroup.class, UpdateGroup.class})
-    private Boolean available;
-    @NotNull(groups = {CreateGroup.class, UpdateGroup.class})
-    private Integer ownerId;
-    @NotNull(groups = {CreateGroup.class, UpdateGroup.class})
-    private Integer requestId;
+    private String email;
 }
