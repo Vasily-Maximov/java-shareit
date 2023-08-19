@@ -3,30 +3,50 @@ package ru.practicum.shareit.item.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.abstarct.model.AbstractModel;
-import ru.practicum.shareit.check.CreateGroup;
-import ru.practicum.shareit.check.UpdateGroup;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import lombok.NoArgsConstructor;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
+import ru.practicum.shareit.request.model.ItemRequest;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
+import javax.persistence.ManyToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.Transient;
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
  */
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class Item extends AbstractModel {
+@Entity
+@Table(name = "items")
+public class Item {
 
-    @NotBlank(groups = {CreateGroup.class, UpdateGroup.class})
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    @Column(nullable = false)
     private String name;
-    @NotBlank(groups = {CreateGroup.class, UpdateGroup.class})
-    @Size(max = 300, groups = {CreateGroup.class, UpdateGroup.class})
+    @Column(nullable = false)
     private String description;
-    @NotNull(groups = {CreateGroup.class, UpdateGroup.class})
+    @Column(nullable = false)
     private Boolean available;
-    @NotNull(groups = {CreateGroup.class, UpdateGroup.class})
+    @Column(name = "owner_id", nullable = false)
     private Integer ownerId;
-    @NotNull(groups = {CreateGroup.class, UpdateGroup.class})
-    private Integer requestId;
+   @ManyToOne
+   @JoinColumn(name = "request_id")
+   private ItemRequest requestId;
+    @Transient
+    private Booking lastBooking;
+    @Transient
+    private Booking nextBooking;
+    @Transient
+    private List<CommentDto> comments;
 }

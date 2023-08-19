@@ -13,11 +13,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import ru.practicum.shareit.check.CreateGroup;
 import ru.practicum.shareit.check.UpdateGroup;
-import ru.practicum.shareit.user.mapper.UserMapper;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.service.UserServiceImp;
 import ru.practicum.shareit.user.dto.UserDto;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * TODO Sprint add-controllers.
@@ -28,30 +26,30 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceImp userService;
 
     @PostMapping
     public UserDto add(@Validated(CreateGroup.class) @RequestBody UserDto userDto) {
         log.info("Передан запрос на создание пользователя: {}", userDto);
-        return UserMapper.toUserDto(userService.add(userDto));
+        return userService.add(userDto);
     }
 
     @PatchMapping("/{userId}")
     public UserDto update(@PathVariable Integer userId, @Validated(UpdateGroup.class) @RequestBody UserDto userDto) {
         log.info("Передан запрос на изменение пользователя по id:= {}, входными данными : {}", userId, userDto);
-        return UserMapper.toUserDto(userService.update(userDto, userId));
+        return userService.update(userDto, userId);
     }
 
     @GetMapping("/{userId}")
     public UserDto getById(@PathVariable Integer userId) {
         log.info("Передан запрос на получение пользователя по id:= {}", userId);
-        return UserMapper.toUserDto(userService.getById(userId));
+        return userService.getById(userId);
     }
 
     @GetMapping()
     public List<UserDto> getAll() {
         log.info("Передан запрос на получение всех пользователей");
-        return userService.getAll().stream().map(UserMapper::toUserDto).collect(Collectors.toList());
+        return userService.getAll();
     }
 
     @DeleteMapping("/{id}")

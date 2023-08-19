@@ -44,6 +44,14 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleOperationException(final OperationException e) {
+        String message = String.format("Ошибка операции: %s", e.getMessage());
+        log.info(message);
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable e) {
         log.info("Произошла непредвиденная ошибка.");
