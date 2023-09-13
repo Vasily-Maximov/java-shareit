@@ -68,9 +68,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         userRepository.findById(userId).orElseThrow(() -> new ObjectNotFoundException(String
                 .format("Не найден пользователь по id: %d", userId)));
         Pageable page = PageRequest.of(from / size, size, Sort.by("created"));
-        List<ItemRequest> ItemRequests = requestRepository.findByRequesterIdIsNot(userId, page);
-        List<ItemRequestDto> ItemRequestDtoList = ItemRequests.stream().map(ItemRequestMapper::toItemRequestDto).collect(Collectors.toList());
-        Map<Integer, List<Item>> items = itemRepository.findByRequestIdIn(ItemRequests, Sort.by(DESC, "created"))
+        List<ItemRequest> itemRequests = requestRepository.findByRequesterIdIsNot(userId, page);
+        List<ItemRequestDto> ItemRequestDtoList = itemRequests.stream().map(ItemRequestMapper::toItemRequestDto)
+                .collect(Collectors.toList());
+        Map<Integer, List<Item>> items = itemRepository.findByRequestIdIn(itemRequests, Sort.by(DESC, "created"))
                 .stream()
                 .collect(groupingBy(Item -> Item.getRequestId().getId(), toList()));
         for (ItemRequestDto itemRequestDto: ItemRequestDtoList) {
@@ -87,9 +88,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestDto> getUserRequests(Integer userId) {
         userRepository.findById(userId).orElseThrow(() -> new ObjectNotFoundException(String
                 .format("Не найден пользователь по id: %d", userId)));
-        List<ItemRequest> ItemRequests = requestRepository.findByRequesterIdOrderByCreatedDesc(userId);
-        List<ItemRequestDto> ItemRequestDtoList = ItemRequests.stream().map(ItemRequestMapper::toItemRequestDto).collect(Collectors.toList());
-        Map<Integer, List<Item>> items = itemRepository.findByRequestIdIn(ItemRequests, Sort.by(DESC, "created"))
+        List<ItemRequest> itemRequests = requestRepository.findByRequesterIdOrderByCreatedDesc(userId);
+        List<ItemRequestDto> ItemRequestDtoList = itemRequests.stream().map(ItemRequestMapper::toItemRequestDto)
+                .collect(Collectors.toList());
+        Map<Integer, List<Item>> items = itemRepository.findByRequestIdIn(itemRequests, Sort.by(DESC, "created"))
                 .stream()
                 .collect(groupingBy(Item -> Item.getRequestId().getId(), toList()));
         for (ItemRequestDto itemRequestDto: ItemRequestDtoList) {
