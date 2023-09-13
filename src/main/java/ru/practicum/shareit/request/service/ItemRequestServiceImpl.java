@@ -1,80 +1,104 @@
 package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exeption.ObjectNotFoundException;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.JpaItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.JpaItemRequestRepository;
 import ru.practicum.shareit.user.mapper.UserMapper;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.repository.JpaUserRepository;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
+@Slf4j
 public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final JpaItemRequestRepository requestRepository;
-    private final UserService userService;
+
+    private final JpaUserRepository userRepository;
+
     private final JpaItemRepository itemRepository;
 
     @Override
-    @Transactional
     public ItemRequestDto add(ItemRequestDto itemRequestDto, Integer userId) {
         ItemRequest itemRequest = ItemRequest.builder()
                 .description(itemRequestDto.getDescription())
-                .requester(UserMapper.toUser(userService.getById(userId)))
+                .requester(userRepository.findById(userId).orElseThrow(() -> new ObjectNotFoundException(String
+                        .format("Не найден пользователь по id: %d", userId))))
                 .created(LocalDateTime.now())
                 .build();
+        log.info("Выполнен запрос на создание запроса от пользователя id:= {}", userId);
         return ItemRequestMapper.toItemRequestDto(requestRepository.save(itemRequest));
     }
 
     @Override
-    @Transactional
     public ItemRequestDto getById(Integer userId, Integer requestId) {
         ItemRequest itemRequest = requestRepository.findById(requestId)
-                .orElseThrow(() -> new ObjectNotFoundException(String.format("Не найден запрос по идентификатору id = %d", requestId)));
+                .orElseThrow(() -> new ObjectNotFoundException(String.format("Не найден запрос по идентификатору id = %d",
+                        requestId)));
         itemRequest.setItems(itemRepository.findAllByRequestId(itemRequest));
         ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(itemRequest);
-        itemRequestDto.setRequester(userService.getById(userId));
+        itemRequestDto.setRequester(UserMapper.toUserDto(userRepository.findById(userId)
+                .orElseThrow(() -> new ObjectNotFoundException(String
+                .format("Не найден пользователь по id: %d", userId)))));
+        log.info("Выполнен запрос на получение вещи по запросу с id : {}", requestId);
         return itemRequestDto;
     }
 
     @Override
-    @Transactional
     public List<ItemRequestDto> getRequests(Integer userId, int from, int size) {
-        UserMapper.toUser(userService.getById(userId));
+        userRepository.findById(userId).orElseThrow(() -> new ObjectNotFoundException(String
+                .format("Не найден пользователь по id: %d", userId)));
         Pageable page = PageRequest.of(from / size, size, Sort.by("created"));
-        List<ItemRequestDto> list = new ArrayList<>();
-        List<ItemRequest> findAllByRequesterIdIsNot = requestRepository.findByRequesterIdIsNot(userId, page);
-        findAllByRequesterIdIsNot.forEach(itemRequest -> {
-            itemRequest.setItems(itemRepository.findAllByRequestId(itemRequest));
-            ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(itemRequest);
-            list.add(itemRequestDto);
-        });
-        return list;
-
+        List<ItemRequest> ItemRequests = requestRepository.findByRequesterIdIsNot(userId, page);
+        List<ItemRequestDto> ItemRequestDtoList = ItemRequests.stream().map(ItemRequestMapper::toItemRequestDto).collect(Collectors.toList());
+        Map<Integer, List<Item>> items = itemRepository.findByRequestIdIn(ItemRequests, Sort.by(DESC, "created"))
+                .stream()
+                .collect(groupingBy(Item -> Item.getRequestId().getId(), toList()));
+        for (ItemRequestDto itemRequestDto: ItemRequestDtoList) {
+            int key = itemRequestDto.getId();
+            if (items.containsKey(key)) {
+                itemRequestDto.setItems(items.get(key).stream().map(ItemMapper::toItemDto).collect(Collectors.toList()));
+            }
+        }
+        log.info("Передан запрос на получение запросов");
+        return ItemRequestDtoList;
     }
 
     @Override
-    @Transactional
     public List<ItemRequestDto> getUserRequests(Integer userId) {
-        userService.getById(userId);
-        List<ItemRequestDto> list = new ArrayList<>();
-        List<ItemRequest> findAllByRequesterIdOrderByCreatedDesc = requestRepository.findByRequesterIdOrderByCreatedDesc(userId);
-        findAllByRequesterIdOrderByCreatedDesc.forEach(i -> {
-            i.setItems(itemRepository.findAllByRequestId(i));
-            ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(i);
-            list.add(itemRequestDto);
-        });
-        return list;
+        userRepository.findById(userId).orElseThrow(() -> new ObjectNotFoundException(String
+                .format("Не найден пользователь по id: %d", userId)));
+        List<ItemRequest> ItemRequests = requestRepository.findByRequesterIdOrderByCreatedDesc(userId);
+        List<ItemRequestDto> ItemRequestDtoList = ItemRequests.stream().map(ItemRequestMapper::toItemRequestDto).collect(Collectors.toList());
+        Map<Integer, List<Item>> items = itemRepository.findByRequestIdIn(ItemRequests, Sort.by(DESC, "created"))
+                .stream()
+                .collect(groupingBy(Item -> Item.getRequestId().getId(), toList()));
+        for (ItemRequestDto itemRequestDto: ItemRequestDtoList) {
+            int key = itemRequestDto.getId();
+            if (items.containsKey(key)) {
+                itemRequestDto.setItems(items.get(key).stream().map(ItemMapper::toItemDto).collect(Collectors.toList()));
+            }
+        }
+        log.info("Выполнен запрос на получение запросов от пользователя по id: {}", userId);
+        return ItemRequestDtoList;
     }
 }

@@ -22,26 +22,27 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
+
 @RestController
 @RequestMapping("/items")
 @Slf4j
 @RequiredArgsConstructor
+@Validated
 public class ItemController {
 
     private final ItemServiceImp itemService;
 
+    private static final String OWNER_ID = "X-Sharer-User-Id";
+
     @PostMapping
-    public ItemDto add(@RequestHeader("X-Sharer-User-Id") Integer ownerId, @Validated(CreateGroup.class) @RequestBody ItemDto
+    public ItemDto add(@RequestHeader(OWNER_ID) Integer ownerId, @Validated(CreateGroup.class) @RequestBody ItemDto
             itemDto) {
         log.info("Передан запрос на создание вещи: {}", itemDto);
         return itemService.add(ownerId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Integer ownerId, @PathVariable Integer itemId,
+    public ItemDto update(@RequestHeader(OWNER_ID) Integer ownerId, @PathVariable Integer itemId,
                        @RequestBody ItemDto itemDto) {
         log.info("Передан запрос на изменение вещи по id:= {} пользователя по id:= {}, входные данные вещи : {}", itemId, ownerId,
                 itemDto);
@@ -49,13 +50,13 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getById(@RequestHeader("X-Sharer-User-Id") Integer ownerId, @PathVariable Integer itemId) {
+    public ItemDto getById(@RequestHeader(OWNER_ID) Integer ownerId, @PathVariable Integer itemId) {
         log.info("Передан запрос на поиск вещи по id:= {}", itemId);
         return itemService.getById(itemId, ownerId);
     }
 
     @GetMapping
-    public List<ItemDto> getItemByOwner(@RequestHeader("X-Sharer-User-Id") Integer ownerId,
+    public List<ItemDto> getItemByOwner(@RequestHeader(OWNER_ID) Integer ownerId,
                                  @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                  @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("Передан запрос на поиск вещей владельца по id:= {}", ownerId);
@@ -76,7 +77,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public CommentDto createComment(@RequestHeader(OWNER_ID) Integer userId,
                                     @PathVariable Integer itemId,
                                     @Valid @RequestBody CommentDto commentDto) {
         log.info("Передан запрос на добавление комментария к вещи с id:= {}", itemId);

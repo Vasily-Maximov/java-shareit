@@ -14,9 +14,6 @@ import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

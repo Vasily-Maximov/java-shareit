@@ -20,52 +20,52 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
-/**
- * TODO Sprint add-bookings.
- */
 @RestController
 @RequestMapping(path = "/bookings")
 @Slf4j
 @RequiredArgsConstructor
+@Validated
 public class BookingController {
 
     private final BookingService bookingService;
 
+    private static final String USER_ID = "X-Sharer-User-Id";
+
     @PostMapping
-    public ResponseBookingDto add(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public ResponseBookingDto add(@RequestHeader(USER_ID) Integer userId,
                                   @Validated(CreateGroup.class) @RequestBody BookingDto bookingDto) {
         log.info("Передан запрос на добавление нового бронирования вещи пользователем с ID: {}", userId);
         return bookingService.add(bookingDto, userId);
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseBookingDto getById(@RequestHeader("X-Sharer-User-Id") Integer ownerId, @PathVariable Integer bookingId) {
-        log.info("Передан запрос на получение бронирования по id:= {}", bookingId);
+    public ResponseBookingDto getById(@RequestHeader(USER_ID) Integer ownerId, @PathVariable Integer bookingId) {
+        log.info("Передан запрос на получение информации бронирования по id:= {}", bookingId);
         return bookingService.getBookingById(bookingId, ownerId);
     }
 
     @GetMapping
-    public List<ResponseBookingDto> getByUserId(@RequestHeader("X-Sharer-User-Id") Integer ownerId,
+    public List<ResponseBookingDto> getByUserId(@RequestHeader(USER_ID) Integer userId,
                                                 @RequestParam(defaultValue = "ALL") String state,
                                                 @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                                 @Positive @RequestParam(defaultValue = "10") Integer size) {
-        log.info("Передан запрос на получение списка всех бронирований пользователя по id:= {}", ownerId);
-        return bookingService.getAllBookingsByUser(state, ownerId, from, size);
+        log.info("Передан запрос на получение списка всех бронирований пользователя по id:= {}", userId);
+        return bookingService.getAllBookingsByUser(state, userId, from, size);
     }
 
     @GetMapping("/owner")
-    public List<ResponseBookingDto> getByOwnerId(@RequestHeader("X-Sharer-User-Id") Integer ownerId,
+    public List<ResponseBookingDto> getByOwnerId(@RequestHeader(USER_ID) Integer ownerId,
                                                  @RequestParam(defaultValue = "ALL") String state,
                                                  @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                                  @Positive @RequestParam(defaultValue = "10") Integer size) {
-        log.info("Передан запрос на получение списка всех бронирований владельца по id:= {}", ownerId);
+        log.info("Передан запрос на получение списка бронирований всех вещей владельца по id:= {}", ownerId);
         return bookingService.getAllBookingsByOwner(state, ownerId, from, size);
     }
 
     @PatchMapping("/{bookingId}")
-    public ResponseBookingDto update(@RequestHeader("X-Sharer-User-Id") Integer ownerId, @PathVariable Integer bookingId,
+    public ResponseBookingDto update(@RequestHeader(USER_ID) Integer ownerId, @PathVariable Integer bookingId,
                                      @RequestParam Boolean approved) {
-        log.info("Передан запрос на изменение бронирования по id:= {}", bookingId);
+        log.info("Передан запрос на изменение статуса бронирования по id:= {}", bookingId);
         return bookingService.approve(bookingId, ownerId, approved);
     }
 }

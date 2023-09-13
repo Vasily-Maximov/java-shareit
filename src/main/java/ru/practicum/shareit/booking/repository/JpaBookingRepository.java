@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.model.Item;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,23 +18,23 @@ public interface JpaBookingRepository extends JpaRepository<Booking, Integer> {
             + "WHERE b.id = :bookingId")
     void save(BookingStatus status, Integer bookingId);
 
-    List<Booking> findByBookerIdOrderByStartDesc(Integer id, Pageable pageable);
+    List<Booking> findByBookerId(Integer id, Pageable pageable);
 
-    List<Booking> findByBookerIdAndStatusIsOrderByStartDesc(Integer id, BookingStatus status, Pageable pageable);
+    List<Booking> findByBookerIdAndStatusIs(Integer id, BookingStatus status, Pageable pageable);
 
-    List<Booking> findByBookerIdAndStartIsAfterOrderByStartDesc(Integer id, LocalDateTime time, Pageable pageable);
+    List<Booking> findByBookerIdAndStartIsAfter(Integer id, LocalDateTime time, Pageable pageable);
 
-    List<Booking> findByBookerIdAndStartIsAfterAndStatusIsOrderByStartDesc(Integer bookerId,
-                                                                           LocalDateTime start,
-                                                                           BookingStatus status,
-                                                                           Pageable pageable);
+    List<Booking> findByBookerIdAndStartIsAfterAndStatusIs(Integer bookerId,
+                                                           LocalDateTime start,
+                                                           BookingStatus status,
+                                                           Pageable pageable);
 
-    List<Booking> findByBookerIdAndEndIsAfterAndStartIsBeforeOrderByStartDesc(Integer id,
-                                                                              LocalDateTime end,
-                                                                              LocalDateTime start,
-                                                                              Pageable pageable);
+    List<Booking> findByBookerIdAndEndIsAfterAndStartIsBefore(Integer id,
+                                                              LocalDateTime end,
+                                                              LocalDateTime start,
+                                                              Pageable pageable);
 
-    List<Booking> findByBookerIdAndEndIsBeforeOrderByStartDesc(Integer id, LocalDateTime time, Pageable pageable);
+    List<Booking> findByBookerIdAndEndIsBefore(Integer id, LocalDateTime time, Pageable pageable);
 
     List<Booking> findByItemIdAndBookerIdAndStatusIsAndEndIsBefore(Integer itemId,
                                                                    Integer bookerId,
@@ -86,4 +87,6 @@ public interface JpaBookingRepository extends JpaRepository<Booking, Integer> {
             + "WHERE i.id = :itemId "
             + "ORDER BY b.start DESC")
     List<Booking> getBookingsItem(Integer itemId);
+
+    List<Booking> findByItemIn(List<Item> items);
 }

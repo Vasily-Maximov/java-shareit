@@ -18,9 +18,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Transient;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

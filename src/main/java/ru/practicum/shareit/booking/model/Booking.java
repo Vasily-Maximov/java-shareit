@@ -20,10 +20,6 @@ import javax.persistence.EnumType;
 import javax.persistence.FetchType;
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-bookings.
- */
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

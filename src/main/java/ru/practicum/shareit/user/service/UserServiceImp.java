@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.abstarct.AbstractService;
 import ru.practicum.shareit.exeption.ObjectNotFoundException;
 import ru.practicum.shareit.exeption.ObjectValidationException;
@@ -10,13 +11,13 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.JpaUserRepository;
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class UserServiceImp extends AbstractService implements UserService {
 
     private final JpaUserRepository userRepository;
@@ -29,7 +30,6 @@ public class UserServiceImp extends AbstractService implements UserService {
     }
 
     @Override
-    @Transactional
     public UserDto add(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
         userRepository.save(user);
@@ -38,7 +38,6 @@ public class UserServiceImp extends AbstractService implements UserService {
     }
 
     @Override
-    @Transactional
     public UserDto update(UserDto userDto, Integer userId) {
         User oldUser = UserMapper.toUser(getById(userId));
         String inputName = userDto.getName();
@@ -63,14 +62,14 @@ public class UserServiceImp extends AbstractService implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public UserDto getById(Integer userId) {
         return UserMapper.toUserDto(userRepository.findById(userId).orElseThrow(() -> new ObjectNotFoundException(String
                 .format("Не найден пользователь по id: %d", userId))));
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<UserDto> getAll() {
         log.info("Выполнен запрос на получение пользователей:");
         return userRepository.findAll().stream()
@@ -79,7 +78,6 @@ public class UserServiceImp extends AbstractService implements UserService {
     }
 
     @Override
-    @Transactional
     public void delete(Integer userId) {
         userRepository.deleteById(userId);
         log.info("Выполнен запрос на удаление пользователя по id:= {}", userId);
