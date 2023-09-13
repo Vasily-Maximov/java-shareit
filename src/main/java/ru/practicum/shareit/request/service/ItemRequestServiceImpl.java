@@ -69,19 +69,19 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .format("Не найден пользователь по id: %d", userId)));
         Pageable page = PageRequest.of(from / size, size, Sort.by("created"));
         List<ItemRequest> itemRequests = requestRepository.findByRequesterIdIsNot(userId, page);
-        List<ItemRequestDto> ItemRequestDtoList = itemRequests.stream().map(ItemRequestMapper::toItemRequestDto)
+        List<ItemRequestDto> itemRequestDtoList = itemRequests.stream().map(ItemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
         Map<Integer, List<Item>> items = itemRepository.findByRequestIdIn(itemRequests, Sort.by(DESC, "created"))
                 .stream()
                 .collect(groupingBy(Item -> Item.getRequestId().getId(), toList()));
-        for (ItemRequestDto itemRequestDto: ItemRequestDtoList) {
+        for (ItemRequestDto itemRequestDto: itemRequestDtoList) {
             int key = itemRequestDto.getId();
             if (items.containsKey(key)) {
                 itemRequestDto.setItems(items.get(key).stream().map(ItemMapper::toItemDto).collect(Collectors.toList()));
             }
         }
         log.info("Передан запрос на получение запросов");
-        return ItemRequestDtoList;
+        return itemRequestDtoList;
     }
 
     @Override
@@ -89,18 +89,18 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         userRepository.findById(userId).orElseThrow(() -> new ObjectNotFoundException(String
                 .format("Не найден пользователь по id: %d", userId)));
         List<ItemRequest> itemRequests = requestRepository.findByRequesterIdOrderByCreatedDesc(userId);
-        List<ItemRequestDto> ItemRequestDtoList = itemRequests.stream().map(ItemRequestMapper::toItemRequestDto)
+        List<ItemRequestDto> itemRequestDtoList = itemRequests.stream().map(ItemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
         Map<Integer, List<Item>> items = itemRepository.findByRequestIdIn(itemRequests, Sort.by(DESC, "created"))
                 .stream()
                 .collect(groupingBy(Item -> Item.getRequestId().getId(), toList()));
-        for (ItemRequestDto itemRequestDto: ItemRequestDtoList) {
+        for (ItemRequestDto itemRequestDto: itemRequestDtoList) {
             int key = itemRequestDto.getId();
             if (items.containsKey(key)) {
                 itemRequestDto.setItems(items.get(key).stream().map(ItemMapper::toItemDto).collect(Collectors.toList()));
             }
         }
         log.info("Выполнен запрос на получение запросов от пользователя по id: {}", userId);
-        return ItemRequestDtoList;
+        return itemRequestDtoList;
     }
 }
