@@ -40,7 +40,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class ItemServiceImp extends AbstractService implements ItemService {
 
     private final JpaUserRepository userRepository;
@@ -54,6 +54,7 @@ public class ItemServiceImp extends AbstractService implements ItemService {
     private final ItemRequestService requestService;
 
     @Override
+    @Transactional
     public ItemDto add(Integer ownerId, ItemDto itemDto) {
         userRepository.findById(ownerId).orElseThrow(() -> new ObjectNotFoundException(String
                 .format("Не найден пользователь по id: %d", ownerId)));
@@ -67,6 +68,7 @@ public class ItemServiceImp extends AbstractService implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto update(Integer ownerId, Integer itemId, ItemDto itemDto) {
         userRepository.findById(ownerId).orElseThrow(() -> new ObjectNotFoundException(String
                 .format("Не найден пользователь по id: %d", ownerId)));
@@ -148,7 +150,6 @@ public class ItemServiceImp extends AbstractService implements ItemService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Integer getOwnerId(Integer itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new ObjectNotFoundException(String.format("Не найдена вещь по id: %d", itemId)))
@@ -176,7 +177,6 @@ public class ItemServiceImp extends AbstractService implements ItemService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<ItemDto> search(String text, Integer from, Integer size) {
         Pageable page = PageRequest.of(from / size, size);
         if (text == null || text.isBlank()) {
@@ -207,11 +207,13 @@ public class ItemServiceImp extends AbstractService implements ItemService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Integer itemId) {
         itemRepository.deleteById(itemId);
     }
 
     @Override
+    @Transactional
     public CommentDto addComment(Integer itemId, Integer userId, CommentDto commentDto) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ObjectNotFoundException(String.format("Не найдена вещь по id:= %d", itemId)));

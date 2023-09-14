@@ -1,5 +1,10 @@
 package ru.practicum.shareit.booking;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum OrderState {
     ALL("Получение бронирований"),
     CURRENT("Получение текущего бронирования"),
@@ -9,12 +14,4 @@ public enum OrderState {
     REJECTED("Получение отклонённых бронирований");
 
     private final String nameStatus;
-
-    OrderState(String nameStatus) {
-        this.nameStatus = nameStatus;
-    }
-
-    public String getNameStatus() {
-        return nameStatus;
-    }
 }

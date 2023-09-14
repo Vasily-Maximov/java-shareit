@@ -92,29 +92,29 @@ public class BookingServiceImp implements BookingService {
         } catch (IllegalArgumentException e) {
             throw new OperationException(String.format("Unknown state: %s", state));
         }
-        switch (orderState.getNameStatus()) {
-            case "Получение бронирований":
+        switch (orderState) {
+            case ALL:
                 log.info("Выполнен запрос на получение бронирований арендатора по id:= {}", userId);
                 return BookingMapper.toBookingDto(bookingRepository.findByBookerId(userId, pageable));
-            case "Получение текущего бронирования":
+            case CURRENT:
                 log.info("Выполнен запрос на получение текущего бронирования арендатора по id:= {}", userId);
                 return BookingMapper.toBookingDto(bookingRepository
                         .findByBookerIdAndEndIsAfterAndStartIsBefore(userId, currentDateTime, currentDateTime,
                                 pageable));
-            case "Получение завершённых бронирований":
+            case PAST:
                 log.info("Выполнен запрос на получение завершённых бронирований арендатора по id:= {}", userId);
                 return BookingMapper.toBookingDto(bookingRepository
                         .findByBookerIdAndEndIsBefore(userId, currentDateTime, pageable));
-            case "Получение будущих бронирований":
+            case FUTURE:
                 log.info("Выполнен запрос на получение будущих бронирований арендатора по id:= {}", userId);
                 return BookingMapper.toBookingDto(bookingRepository
                         .findByBookerIdAndStartIsAfter(userId, currentDateTime, pageable));
-            case "Получение бронирований ожидающих подтверждения":
+            case WAITING:
                 log.info("Выполнен запрос на получение бронирований ожидающих подтверждений арендатора по id:= {}", userId);
                 return BookingMapper.toBookingDto(bookingRepository
                         .findByBookerIdAndStartIsAfterAndStatusIs(userId, currentDateTime,
                                 BookingStatus.WAITING, pageable));
-            case "Получение отклонённых бронирований":
+            case REJECTED:
                 log.info("Выполнен запрос на получение отклонённых бронирований арендатора по id:= {}", userId);
                 return BookingMapper.toBookingDto(bookingRepository
                         .findByBookerIdAndStatusIs(userId, BookingStatus.REJECTED, pageable));
@@ -135,25 +135,25 @@ public class BookingServiceImp implements BookingService {
         } catch (IllegalArgumentException e) {
             throw new OperationException(String.format("Unknown state: %s", state));
         }
-        switch (orderState.getNameStatus()) {
-            case "Получение бронирований":
+        switch (orderState) {
+            case ALL:
                 log.info("Выполнен запрос на получение бронирований всех вещей владельца по id:= {}", ownerId);
                 return BookingMapper.toBookingDto(bookingRepository.getByItemOwnerId(ownerId, pageable));
-            case "Получение текущего бронирования":
+            case CURRENT:
                 log.info("Выполнен запрос на получение текущих бронирований всех вещей владельца по id:= {}", ownerId);
                 return BookingMapper.toBookingDto(bookingRepository.getCurrentBookingsOwner(ownerId, currentDateTime, pageable));
-            case "Получение завершённых бронирований":
+            case PAST:
                 log.info("Выполнен запрос на получение завершённых бронирований всех вещей владельца по id:= {}", ownerId);
                 return BookingMapper.toBookingDto(bookingRepository.getPastBookingsOwner(ownerId, currentDateTime, pageable));
-            case "Получение будущих бронирований":
+            case FUTURE:
                 log.info("Выполнен запрос на получение будущих бронирований всех вещей владельца по id:= {}", ownerId);
                 return BookingMapper.toBookingDto(bookingRepository.getFutureBookingsOwner(ownerId, currentDateTime, pageable));
-            case "Получение бронирований ожидающих подтверждения":
+            case WAITING:
                 log.info("Выполнен запрос на получение бронирований ожидающих подтверждения для всех вещей владельца по id:= {}",
                         ownerId);
                 return BookingMapper.toBookingDto(bookingRepository
                         .getWaitingBookingsOwner(ownerId, currentDateTime, BookingStatus.WAITING, pageable));
-            case "Получение отклонённых бронирований":
+            case REJECTED:
                 log.info("Выполнен запрос на получение отклонённых бронирований по всем вещам владельца по id:= {}", ownerId);
                 return BookingMapper.toBookingDto(bookingRepository
                         .getRejectedBookingsOwner(ownerId, BookingStatus.REJECTED, pageable));

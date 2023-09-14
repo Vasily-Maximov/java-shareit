@@ -27,7 +27,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 @Slf4j
 public class ItemRequestServiceImpl implements ItemRequestService {
 
@@ -38,6 +38,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final JpaItemRepository itemRepository;
 
     @Override
+    @Transactional
     public ItemRequestDto add(ItemRequestDto itemRequestDto, Integer userId) {
         ItemRequest itemRequest = ItemRequest.builder()
                 .description(itemRequestDto.getDescription())
