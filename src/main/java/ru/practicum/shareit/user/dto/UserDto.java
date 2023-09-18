@@ -8,12 +8,14 @@ import ru.practicum.shareit.check.UpdateGroup;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
 @Data
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class UserDto {
 
+    @Null(groups = CreateGroup.class)
     private Integer id;
     @NotBlank(groups = CreateGroup.class)
     private String name;
