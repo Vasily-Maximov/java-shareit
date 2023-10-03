@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import ru.practicum.shareit.check.CreateGroup;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
-import ru.practicum.shareit.item.service.ItemServiceImp;
+import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -30,7 +30,7 @@ import java.util.List;
 @Validated
 public class ItemController {
 
-    private final ItemServiceImp itemService;
+    private final ItemService itemService;
 
     private static final String OWNER_ID = "X-Sharer-User-Id";
 

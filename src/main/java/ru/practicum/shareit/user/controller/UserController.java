@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import ru.practicum.shareit.check.CreateGroup;
 import ru.practicum.shareit.check.UpdateGroup;
-import ru.practicum.shareit.user.service.UserServiceImp;
+import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 import java.util.List;
 
@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserServiceImp userService;
+    private final UserService userService;
 
     @PostMapping
     public UserDto add(@Validated(CreateGroup.class) @RequestBody UserDto userDto) {

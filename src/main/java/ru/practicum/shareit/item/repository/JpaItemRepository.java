@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.repository;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.model.Item;
@@ -20,5 +19,5 @@ public interface JpaItemRepository extends JpaRepository<Item, Integer> {
 
    List<Item> findAllByRequestId(ItemRequest itemRequest);
 
-   List<Item> findByRequestIdIn(List<ItemRequest> itemRequests, Sort sort);
+   List<Item> findByRequestIdIn(List<ItemRequest> itemRequests);
 }

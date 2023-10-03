@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
-import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @RequiredArgsConstructor
@@ -72,7 +71,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<ItemRequest> itemRequests = requestRepository.findByRequesterIdIsNot(userId, page);
         List<ItemRequestDto> itemRequestDtoList = itemRequests.stream().map(ItemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
-        Map<Integer, List<Item>> items = itemRepository.findByRequestIdIn(itemRequests, Sort.by(DESC, "created"))
+        Map<Integer, List<Item>> items = itemRepository.findByRequestIdIn(itemRequests)
                 .stream()
                 .collect(groupingBy(Item -> Item.getRequestId().getId(), toList()));
         for (ItemRequestDto itemRequestDto: itemRequestDtoList) {
@@ -92,7 +91,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<ItemRequest> itemRequests = requestRepository.findByRequesterIdOrderByCreatedDesc(userId);
         List<ItemRequestDto> itemRequestDtoList = itemRequests.stream().map(ItemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
-        Map<Integer, List<Item>> items = itemRepository.findByRequestIdIn(itemRequests, Sort.by(DESC, "created"))
+        Map<Integer, List<Item>> items = itemRepository.findByRequestIdIn(itemRequests)
                 .stream()
                 .collect(groupingBy(Item -> Item.getRequestId().getId(), toList()));
         for (ItemRequestDto itemRequestDto: itemRequestDtoList) {
