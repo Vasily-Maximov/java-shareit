@@ -28,6 +28,8 @@ class UserServiceImpTest extends AbstractService {
 
     private final UserDto userDtoRequest = new UserDto(null, "User", "user@yandex.ru");
 
+    private final UserDto userDtoRequestNull = new UserDto(null, null, null);
+
     @Mock
     private JpaUserRepository userRepository;
 
@@ -135,5 +137,17 @@ class UserServiceImpTest extends AbstractService {
     void deleteTest09() {
         userService.delete(1);
         Mockito.verify(userRepository, times(1)).deleteById(1);
+    }
+
+    @Test
+    public void updateTest10() {
+        User user = new User(1, "UserOld", "userOld@yandex.ru");
+        Mockito.when(userRepository.findById(Mockito.anyInt()))
+                .thenReturn(Optional.of(user));
+        UserDto userDtoResponse = userService.update(userDtoRequestNull, 1);
+        assertEquals(1, userDtoResponse.getId());
+        assertEquals(user.getName(), userDtoResponse.getName());
+        assertEquals(user.getEmail(), userDtoResponse.getEmail());
+        verify(userRepository, times(1)).save(Mockito.any(User.class));
     }
 }

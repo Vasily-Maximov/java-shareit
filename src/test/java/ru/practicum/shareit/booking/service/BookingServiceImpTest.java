@@ -288,4 +288,46 @@ class BookingServiceImpTest {
         assertEquals(e.getMessage(), String.format("Нет доступа к изменению статуса бронирования. Не найден владелец вещи" +
                 "по id = %s", 1));
     }
+
+    @Test
+    void addTest() {
+        Booking testBooking = booking1;
+        testBooking.setStatus(BookingStatus.WAITING);
+        Mockito.when(userRepository.findById(anyInt()))
+                .thenReturn(Optional.of(user1));
+        Mockito.when(itemService.getItemById(anyInt(), anyInt()))
+                .thenReturn(itemDto);
+        Mockito.when(itemService.getOwnerId(anyInt()))
+                .thenReturn(1);
+        Mockito.when(bookingRepository.save(any(Booking.class))).thenReturn(testBooking);
+
+        ResponseBookingDto responseBookingDto = bookingService.add(bookingDto, 2);
+
+        assertEquals(responseBookingDto.getBooker().getId(), user1.getId());
+        assertEquals(responseBookingDto.getStatus(), BookingStatus.WAITING);
+    }
+
+    @Test
+    void approveWhenUserIsOwner() {
+        Booking testBooking = booking1;
+        testBooking.setStatus(BookingStatus.WAITING);
+        Mockito.when(bookingRepository.findById(anyInt()))
+                .thenReturn(Optional.of(testBooking));
+        Mockito.when(itemService.getOwnerId(anyInt()))
+                .thenReturn(1);
+        ResponseBookingDto responseBookingDto =  bookingService.approve(1, 1, true);
+        assertEquals(responseBookingDto.getStatus(), BookingStatus.APPROVED);
+    }
+
+    @Test
+    void approveWhenUserIsOwner2() {
+        Booking testBooking = booking1;
+        testBooking.setStatus(BookingStatus.WAITING);
+        Mockito.when(bookingRepository.findById(anyInt()))
+                .thenReturn(Optional.of(testBooking));
+        Mockito.when(itemService.getOwnerId(anyInt()))
+                .thenReturn(1);
+        ResponseBookingDto responseBookingDto =  bookingService.approve(1, 1, false);
+        assertEquals(responseBookingDto.getStatus(), BookingStatus.REJECTED);
+    }
 }

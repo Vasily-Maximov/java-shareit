@@ -260,4 +260,37 @@ class ItemServiceImpTest {
 
         Mockito.verify(itemRepository).deleteById(1);
     }
+
+    @Test
+    public void getOwnerIdTest() {
+        Mockito.when(itemRepository.findById(anyInt()))
+                .thenThrow(new ObjectNotFoundException(String.format("Не найдена вещь по id: %d", 100)));
+
+        Exception e = assertThrows(ObjectNotFoundException.class, () -> itemService.getOwnerId(100));
+
+        assertEquals(e.getMessage(), String.format("Не найдена вещь по id: %d", 100));
+    }
+
+    @Test
+    void getItemByIdTest() {
+        Mockito.when(itemRepository.findById(anyInt()))
+                .thenReturn(Optional.of(item));
+
+        Mockito.when(bookingRepository.findByItemIn(any()))
+                .thenReturn(bookingList);
+
+        Mockito.when(commentRepository.findAllByItemId(anyInt()))
+                .thenReturn(List.of(comment));
+
+        ItemDto responseItemDto = itemService.getItemById(1, 1);
+
+        assertEquals("Text", responseItemDto.getComments().get(0).getText());
+        assertEquals(responseItemDto.getName(), item.getName());
+        assertEquals(responseItemDto.getDescription(), item.getDescription());
+        assertEquals(responseItemDto.getAvailable(), item.getAvailable());
+        assertEquals(responseItemDto.getLastBooking().getId(), 1);
+        assertEquals(responseItemDto.getLastBooking().getBookerId(), 1);
+        assertEquals(responseItemDto.getNextBooking().getId(), 2);
+        assertEquals(responseItemDto.getNextBooking().getBookerId(), 1);
+    }
 }
