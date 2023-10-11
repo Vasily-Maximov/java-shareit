@@ -45,10 +45,10 @@ class BookingServiceImpTest {
     private JpaBookingRepository bookingRepository;
 
     @Mock
-    JpaUserRepository userRepository;
+    private JpaUserRepository userRepository;
 
     @Mock
-    JpaItemRepository itemRepository;
+    private JpaItemRepository itemRepository;
 
     private final User user1 = new User(1, "User", "user@email.com");
 
